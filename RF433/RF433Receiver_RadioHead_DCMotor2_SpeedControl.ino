@@ -3,10 +3,10 @@
 
 #define enA 9
 #define enB 10
-#define MPin1 5
-#define MPin2 4
-#define MPin3 7
-#define MPin4 6
+#define MPin1 4
+#define MPin2 5
+#define MPin3 6
+#define MPin4 7
 
 int motorSpeedA = 0;
 int motorSpeedB = 0;
@@ -33,29 +33,37 @@ void loop() {
     Serial.print("message: ");
     Serial.println(buf[0]);
     Serial.println(buf[1]);
-	
-    int x = buf[0];
-	int y = buf[1];
-	
-	// Y-axis used for forward and backward control
+  
+    //int x = buf[0];
+    //int y = buf[1];
+    int x = map(buf[0], 0, 255, 0, 1023);
+    int y = map(buf[1], 0, 255, 0, 1023);
+    Serial.println(x);
+    Serial.println(y);
+  
+  // Y-axis used for forward and backward control
     if (y < 470) {
       backward();
+      Serial.println("backword!");
       // Convert the declining Y-axis readings for going backward from 470 to 0 into 0 to 255 value for the PWM signal for increasing the motor speed
       motorSpeedA = map(y, 470, 0, 0, 255);
       motorSpeedB = map(y, 470, 0, 0, 255);
     }else if (y > 550) {
       forward();
+      Serial.println("forward");
       // Convert the increasing Y-axis readings for going forward from 550 to 1023 into 0 to 255 value for the PWM signal for increasing the motor speed
       motorSpeedA = map(y, 550, 1023, 0, 255);
       motorSpeedB = map(y, 550, 1023, 0, 255);
     }else { // If joystick stays in middle the motors are not moving
       motorSpeedA = 0;
       motorSpeedB = 0;
+      Serial.println("Stay!");
     }
-	
-	// X-axis used for left and right control
+  
+  // X-axis used for left and right control
     if (x < 470) {
       // Convert the declining X-axis readings from 470 to 0 into increasing 0 to 255 value
+      Serial.println("Left!");
       int xMapped = map(x, 470, 0, 0, 255);
       // Move to left - decrease left motor speed, increase right motor speed
       motorSpeedA = motorSpeedA - xMapped;
@@ -70,6 +78,7 @@ void loop() {
     }
     if (x > 550) {
       // Convert the increasing X-axis readings from 550 to 1023 into 0 to 255 value
+      Serial.println("Right!");
       int xMapped = map(x, 550, 1023, 0, 255);
       // Move right - decrease right motor speed, increase left motor speed
       motorSpeedA = motorSpeedA + xMapped;
@@ -82,8 +91,8 @@ void loop() {
         motorSpeedB = 0;
       }
     }
-	
-	// Prevent buzzing at low speeds (Adjust according to your motors. My motors couldn't start moving if PWM value was below value of 70)
+  
+  // Prevent buzzing at low speeds (Adjust according to your motors. My motors couldn't start moving if PWM value was below value of 70)
     if (motorSpeedA < 70) {
       motorSpeedA = 0;
     }
@@ -92,6 +101,8 @@ void loop() {
     }
     analogWrite(enA, motorSpeedA); // Send PWM signal to motor A
     analogWrite(enB, motorSpeedB); // Send PWM signal to motor B
+    Serial.println(motorSpeedA);
+    Serial.println(motorSpeedB);
   
   }else
   {
@@ -108,15 +119,15 @@ void stop() {
 }
 
 void forward() {
-  digitalWrite(MPin1, HIGH);
-  digitalWrite(MPin2, LOW);
-  digitalWrite(MPin3, HIGH);
-  digitalWrite(MPin4, LOW);
-}
-
-void backward() {
   digitalWrite(MPin1, LOW);
   digitalWrite(MPin2, HIGH);
   digitalWrite(MPin3, LOW);
   digitalWrite(MPin4, HIGH);
+}
+
+void backward() {
+  digitalWrite(MPin1, HIGH);
+  digitalWrite(MPin2, LOW);
+  digitalWrite(MPin3, HIGH);
+  digitalWrite(MPin4, LOW);
 }
