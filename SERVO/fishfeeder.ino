@@ -44,5 +44,8 @@ void loop()
   } 
 
   myservo.write(90);
-  // myservo.detach(9);
+  // myservo.detach();
+  // delay(15);
+  // myservo.detach();
+  // delay(15);
 }
